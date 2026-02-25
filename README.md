@@ -1,55 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ravi’s Grocery Store</title>
-<style>
-  body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
-  header { background: #4CAF50; color: white; text-align: center; padding: 20px; }
-  header h1 { margin: 0; font-size: 28px; }
-  section { padding: 20px; }
-  .content { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-  h2 { margin-top: 0; color: #333; }
-  ul { padding-left: 20px; }
-  a.button {
-    display: inline-block; background: #25D366; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none;
-    font-weight: bold; margin-top: 10px;
-  }
-  a.button:hover { background: #128C7E; }
-  footer { text-align: center; padding: 15px; background: #ddd; }
-  @media(max-width:600px){ header h1{font-size:24px;} }
-</style>
+    <meta charset="UTF-8">
+    <title>PromoMantra</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            margin: 0;
+            text-align: center;
+        }
+
+        .header {
+            background: #ff4d4d;
+            color: white;
+            padding: 20px;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        input {
+            padding: 10px;
+            margin: 5px;
+            width: 250px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .post-box {
+            background: white;
+            width: 80%;
+            margin: 15px auto;
+            padding: 15px;
+            box-shadow: 0 0 10px gray;
+        }
+
+        .post-box a {
+            display: block;
+            margin: 10px 0;
+            color: blue;
+        }
+
+        .delete-btn {
+            background: black;
+            color: white;
+            padding: 5px 10px;
+        }
+    </style>
 </head>
 <body>
 
-<header>
-  <h1>Ravi’s Grocery Store</h1>
-</header>
+<div class="header">
+    <h1>PromoMantra</h1>
+    <p>Promote Your Content for Free</p>
+</div>
 
-<section>
-  <div class="content">
-    <h2>About Us</h2>
-    <p>Welcome to Ravi’s Grocery! We provide fresh fruits, vegetables, and daily essentials at affordable prices. Contact us to know more!</p>
-    <p><strong>Email:</strong> ravi@gmail.com</p>
-    <p><strong>Phone:</strong> +91-9876543210</p>
-    <a href="https://wa.me/919876543210?text=Hello%20Ravi's%20Grocery,%20I%20want%20to%20know%20more%20about%20your%20products!" target="_blank" class="button">Message on WhatsApp</a>
-  </div>
+<div class="container">
+    <!-- Login Section -->
+    <div id="login-section">
+        <h2>Login / Enter Details</h2>
+        <input type="text" id="name" placeholder="Enter Name"><br>
+        <input type="text" id="number" placeholder="Enter Phone Number"><br>
+        <button onclick="login()">Login</button>
+    </div>
 
-  <div class="content">
-    <h2>Services</h2>
-    <ul>
-      <li>Fresh Fruits & Vegetables</li>
-      <li>Daily Essentials</li>
-      <li>Home Delivery</li>
-    </ul>
-    <a href="https://wa.me/919876543210?text=Hello%20Ravi's%20Grocery,%20I%20want%20to%20order%20products!" target="_blank" class="button">Order via WhatsApp</a>
-  </div>
-</section>
+    <!-- Home Section -->
+    <div id="home-section" style="display:none;">
+        <h2>Welcome, <span id="user-name"></span></h2>
+        <h3>Create a Promotion</h3>
+        <input type="text" id="title" placeholder="Enter Title">
+        <input type="text" id="link" placeholder="Enter Link">
+        <button onclick="addPost()">Post Now</button>
 
-<footer>
-  <p>Contact us today to get your products! &copy; 2026 Ravi’s Grocery Store</p>
-</footer>
+        <h3>All Promotions</h3>
+        <div id="posts"></div>
+    </div>
+</div>
+
+<script>
+let userNumber = "";
+let userName = "";
+let posts = [];
+const dailyLimit = 3;
+
+// Login function
+function login() {
+    userName = document.getElementById("name").value.trim();
+    userNumber = document.getElementById("number").value.trim();
+
+    if(userName === "" || userNumber === "") {
+        alert("Please enter both Name and Number");
+        return;
+    }
+
+    // Hide login, show home
+    document.getElementById("login-section").style.display = "none";
+    document.getElementById("home-section").style.display = "block";
+    document.getElementById("user-name").innerText = userName;
+
+    // Load posts from localStorage
+    const savedPosts = JSON.parse(localStorage.getItem(userNumber));
+    if(savedPosts) posts = savedPosts;
+    renderPosts();
+}
+
+// Add new post
+function addPost() {
+    if(posts.length >= dailyLimit) {
+        alert("Daily post limit reached!");
+        return;
+    }
+
+    const title = document.getElementById("title").value.trim();
+    const link = document.getElementById("link").value.trim();
+
+    if(title === "" || link === "") {
+        alert("Please fill all fields");
+        return;
+    }
+
+    const newPost = { title, link };
+    posts.push(newPost);
+
+    // Save to localStorage
+    localStorage.setItem(userNumber, JSON.stringify(posts));
+    renderPosts();
+
+    document.getElementById("title").value = "";
+    document.getElementById("link").value = "";
+}
+
+// Render posts
+function renderPosts() {
+    const postsDiv = document.getElementById("posts");
+    postsDiv.innerHTML = "";
+    posts.forEach((post, index) => {
+        const div = document.createElement("div");
+        div.className = "post-box";
+        div.innerHTML = `
+            <h3>${post.title}</h3>
+            <a href="${post.link}" target="_blank">Visit Link</a>
+            <button class='delete-btn' onclick='deletePost(${index})'>Delete</button>
+        `;
+        postsDiv.appendChild(div);
+    });
+}
+
+// Delete post
+function deletePost(index) {
+    posts.splice(index, 1);
+    localStorage.setItem(userNumber, JSON.stringify(posts));
+    renderPosts();
+}
+</script>
 
 </body>
 </html>
